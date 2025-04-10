@@ -1,0 +1,5 @@
+IP: 84.201.143.53 ;
+name_taski: https://sergdev.sytes.net ;
+name_kittygram: https://infrasprint.ddns.net ;
+login: sergo ;
+password: 11vava11 ;

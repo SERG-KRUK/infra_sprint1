@@ -1,0 +1,87 @@
+# sergdev.sytes.net
+server {
+    listen 80;
+    server_name sergdev.sytes.net;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name sergdev.sytes.net;
+
+    ssl_certificate /etc/letsencrypt/live/sergdev.sytes.net/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sergdev.sytes.net/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /admin/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location / {
+        root /var/www/taski;
+        index index.html index.htm;
+        try_files $uri /index.html;
+    }
+}
+
+# infrasprint.ddns.net
+ server {
+    listen 80;
+    server_name infrasprint.ddns.net;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name infrasprint.ddns.net;
+
+    # SSL настройки
+    ssl_certificate /etc/letsencrypt/live/infrasprint.ddns.net/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/infrasprint.ddns.net/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Корневая директория Kittygram (убедитесь, что она существует)
+    root /var/www/kittygram;
+    index index.html;
+
+    # API и админка
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        client_max_body_size 20M;
+    }
+
+    location /admin/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        client_max_body_size 20M;
+    }
+
+    # Медиа файлы
+    location /media/ {
+        alias /var/www/kittygram/media/;
+        expires 30d;
+    }
+
+    # Статические файлы
+    location /static/ {
+        alias /var/www/kittygram/static/;
+        expires 365d;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}
